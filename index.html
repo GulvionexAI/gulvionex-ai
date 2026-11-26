@@ -462,7 +462,7 @@ async function sendMessage() {
   try {
     if (!aiEngine) {
       const webllm = await import(
-        "https://esm.run/@mlc-ai/web-llm"
+        "https://esm.sh/@mlc-ai/web-llm@0.2.89"
       );
 
       aiEngine = await webllm.CreateMLCEngine(
