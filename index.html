@@ -480,7 +480,7 @@ function renderMessages() {
   speaker.onclick = () => {
     if ("speechSynthesis" in window) {
      window.speechSynthesis.cancel();
-   const parts = message.text.split(/(gulvionex|[\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/gi);
+   const parts = message.text.replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम").split(/(gulvionex|[\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/gi);
 
 parts.forEach(part => {
   if (!part.trim()) return;
@@ -492,7 +492,7 @@ parts.forEach(part => {
     isBrand ? "गुलवियोनेक्स" : part
   );
 
-  voice.lang = isBrand || isHindi ? "hi-IN" : "en-US";
+voice.lang = isBrand || isHindi ? "hi-IN" : "en-IN";  
 
   voice.rate = 1;
   voice.pitch = 1;
