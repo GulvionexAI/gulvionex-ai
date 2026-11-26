@@ -515,36 +515,41 @@ function speakText(text) {
   synth.cancel();
   synth.resume();
 
-  const speechText = text
-    .replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम")
-    .replace(/GULVIONEX/gi, "गुलवियोनेक्स");
+  const cleanText = text
+    .replace(/[*#_`~]/g, "")
+    .replace(/[,;:]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const parts = speechText.split(
-    /([\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/g
-  );
+  if (!cleanText) return;
+
+  const hindi = /[\u0900-\u097F]/.test(cleanText);
+
+  const speechText = hindi
+    ? cleanText
+        .replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम")
+        .replace(/GULVIONEX/gi, "गुलवियोनेक्स")
+    : cleanText;
+
+  const voice = new SpeechSynthesisUtterance(speechText);
+
+  voice.lang = hindi ? "hi-IN" : "en-IN";
 
   const voices = synth.getVoices();
 
-  parts.forEach(part => {
-    if (!part.trim() || !/[\p{L}\p{N}]/u.test(part)) return;
-
-    const voice = new SpeechSynthesisUtterance(part);
-    const hindi = /[\u0900-\u097F]/.test(part);
-
-    voice.lang = hindi ? "hi-IN" : "en-IN";
-
-    const selected = voices.find(
-      v => v.lang === voice.lang
+  const selected =
+    voices.find(v => v.lang === voice.lang) ||
+    voices.find(v =>
+      v.lang.startsWith(hindi ? "hi" : "en")
     );
 
-    if (selected) voice.voice = selected;
+  if (selected) voice.voice = selected;
 
-    voice.rate = 0.9;
-    voice.pitch = 1;
-    voice.volume = 1;
+  voice.rate = 0.85;
+  voice.pitch = 1;
+  voice.volume = 1;
 
-    synth.speak(voice);
-  });
+  synth.speak(voice);
 }
  let aiEngine = null;
 let aiBusy = false;
