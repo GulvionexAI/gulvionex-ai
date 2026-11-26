@@ -590,10 +590,12 @@ async function sendMessage() {
     reply.text = result.choices[0].message.content;
 if ("speechSynthesis" in window) {
   const voice = new SpeechSynthesisUtterance(
-  reply.text.replace(/GULVIONEX/gi, "Gulvionex")
+  reply.text
+.replace(/GULVIONEX/gi, "Gulvionex")
+.replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम")
 );
-  voice.lang = /[\u0900-\u097F]/.test(reply.text)
-    ? "hi-IN" : "en-IN";
+voice.lang = /[\u0900-\u097F]/.test(voice.text)
+  ? "hi-IN" : "en-IN";  
   voice.rate = 1;
   voice.pitch = 1;
   window.speechSynthesis.cancel();
