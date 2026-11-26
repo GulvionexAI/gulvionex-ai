@@ -589,7 +589,9 @@ async function sendMessage() {
 
     reply.text = result.choices[0].message.content;
 if ("speechSynthesis" in window) {
-  const voice = new SpeechSynthesisUtterance(reply.text);
+  const voice = new SpeechSynthesisUtterance(
+  reply.text.replace(/GULVIONEX/gi, "Gulvionex")
+);
   voice.lang = /[\u0900-\u097F]/.test(reply.text)
     ? "hi-IN" : "en-IN";
   voice.rate = 1;
