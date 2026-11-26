@@ -434,7 +434,7 @@ function renderMessages() {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
 
-     const spokenText = message.text.replace(/gulvionex/gi, "Gool-vee-oh-nex");
+   const spokenText = message.text.replace(/gulvionex/gi, "Gulvyonex");  
 const voice = new SpeechSynthesisUtterance(spokenText); 
 
       voice.lang = /[\u0900-\u097F]/.test(message.text)
