@@ -1,5 +1,16 @@
+ <!DOCTYPE html> 
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  alert(
+    "GULVIONEX Compatibility Test\n\n" +
+    "WebGPU: " + (navigator.gpu ? "Available" : "Unavailable") +
+    "\nWebAssembly: " + (typeof WebAssembly !== "undefined" ? "Available" : "Unavailable") +
+    "\nVoice: " + ("speechSynthesis" in window ? "Available" : "Unavailable")
+  );
+});
+</script>
 
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
