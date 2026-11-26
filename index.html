@@ -432,17 +432,27 @@ function renderMessages() {
 
   speaker.onclick = () => {
     if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+     window.speechSynthesis.cancel();
+   const parts = message.text.split(/(gulvionex|[\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/gi);
 
-   const spokenText = message.text.replace(/gulvionex/gi, "गुलवियोनेक्स");
-const voice = new SpeechSynthesisUtterance(spokenText); 
+parts.forEach(part => {
+  if (!part.trim()) return;
 
-   voice.lang = "hi-IN";   
+  const isBrand = /^gulvionex$/i.test(part);
+  const isHindi = /[\u0900-\u097F]/.test(part);
 
-      voice.rate = 1;
-      voice.pitch = 1;
+  const voice = new SpeechSynthesisUtterance(
+    isBrand ? "गुलवियोनेक्स" : part
+  );
 
-      window.speechSynthesis.speak(voice);
+  voice.lang = isBrand || isHindi ? "hi-IN" : "en-US";
+
+  voice.rate = 1;
+  voice.pitch = 1;
+  voice.volume = 1;
+
+  window.speechSynthesis.speak(voice);
+});   
     } else {
       alert("Voice is not supported.");
     }
