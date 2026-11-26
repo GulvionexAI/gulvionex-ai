@@ -526,7 +526,7 @@ function speakText(text) {
   const voices = synth.getVoices();
 
   parts.forEach(part => {
-    if (!part.trim()) return;
+    if (!part.trim() || !/[\p{L}\p{N}]/u.test(part)) return;
 
     const voice = new SpeechSynthesisUtterance(part);
     const hindi = /[\u0900-\u097F]/.test(part);
