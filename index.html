@@ -477,33 +477,9 @@ function renderMessages() {
     padding: 6px;
   `;
 
-  speaker.onclick = () => {
-    if ("speechSynthesis" in window) {
-     window.speechSynthesis.cancel();
-   const parts = message.text.replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम").split(/(gulvionex|[\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/gi);
-
-parts.forEach(part => {
-  if (!part.trim()) return;
-
-  const isBrand = /^gulvionex$/i.test(part);
-  const isHindi = /[\u0900-\u097F]/.test(part);
-
-  const voice = new SpeechSynthesisUtterance(
-    isBrand ? "गुलवियोनेक्स" : part
-  );
-
-voice.lang = isBrand || isHindi ? "hi-IN" : "en-IN";  
-
-  voice.rate = 1;
-  voice.pitch = 1;
-  voice.volume = 1;
-
-  window.speechSynthesis.speak(voice);
-});   
-    } else {
-      alert("Voice is not supported.");
-    }
-  };
+ speaker.onclick = () => {
+  speakText(message.text);
+}; 
 
   div.appendChild(speaker);
 }
@@ -513,7 +489,44 @@ voice.lang = isBrand || isHindi ? "hi-IN" : "en-IN";
 
   area.scrollTop = area.scrollHeight;
 }
+function speakText(text) {
+  if (!("speechSynthesis" in window)) return;
 
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  synth.resume();
+
+  const speechText = text
+    .replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम")
+    .replace(/GULVIONEX/gi, "गुलवियोनेक्स");
+
+  const parts = speechText.split(
+    /([\u0900-\u097F]+(?:\s+[\u0900-\u097F]+)*)/g
+  );
+
+  const voices = synth.getVoices();
+
+  parts.forEach(part => {
+    if (!part.trim()) return;
+
+    const voice = new SpeechSynthesisUtterance(part);
+    const hindi = /[\u0900-\u097F]/.test(part);
+
+    voice.lang = hindi ? "hi-IN" : "en-IN";
+
+    const selected = voices.find(
+      v => v.lang === voice.lang
+    );
+
+    if (selected) voice.voice = selected;
+
+    voice.rate = 0.9;
+    voice.pitch = 1;
+    voice.volume = 1;
+
+    synth.speak(voice);
+  });
+}
  let aiEngine = null;
 let aiBusy = false;
 
@@ -580,34 +593,21 @@ if ("speechSynthesis" in window) {
         {
           role: "system",
           content: "You are GULVIONEX AI 2.0, a personal AI assistant. The GULVIONEX application was developed by Gulfam Tasneem. Never invent creator names, company names, or development history. Distinguish your application developer from the developers of your underlying AI model. If you do not know something, say so honestly."
-        },
-        ...chat.messages
-          .slice(0, -1)
-          .map(m => ({
-            role: m.role,
-            content: m.text
-          }))
-      ],
-      max_tokens: 512
-    });
+        }, 
+...chat.messages
+  .slice(0, -1)
+  .map(m => ({
+    role: m.role,
+    content: m.text
+  }))
+],
+max_tokens: 512
+});
 
-    reply.text = result.choices[0].message.content;
-if ("speechSynthesis" in window) {
-  const speechText = reply.text
-    .replace(/GULVIONEX/gi, "Gulvionex")
-    .replace(/Gulfam Tasneem/gi, "Gulfaam Tasneem");
+reply.text = result.choices[0].message.content;
+speakText(reply.text);    
 
-  const voice = new SpeechSynthesisUtterance(speechText);
-  voice.lang = /[\u0900-\u097F]/.test(speechText)
-    ? "hi-IN" : "en-IN";
-  voice.rate = 0.9;
-  voice.pitch = 1;
-  voice.volume = 1;
-
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.resume();
-  window.speechSynthesis.speak(voice);
-}
+    
   } catch (error) {
     reply.text = "AI Error: " + error.message;
   } finally {
