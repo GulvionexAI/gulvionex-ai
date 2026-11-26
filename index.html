@@ -496,7 +496,15 @@ async function sendMessage() {
     });
 
     reply.text = result.choices[0].message.content;
-
+if ("speechSynthesis" in window) {
+  const voice = new SpeechSynthesisUtterance(reply.text);
+  voice.lang = /[\u0900-\u097F]/.test(reply.text)
+    ? "hi-IN" : "en-IN";
+  voice.rate = 1;
+  voice.pitch = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(voice);
+}
   } catch (error) {
     reply.text = "AI Error: " + error.message;
   } finally {
