@@ -310,6 +310,13 @@ textarea {
     <div class="input-box">
       <textarea id="input" rows="2"
         placeholder="Ask me anything..."></textarea>
+     <button type="button" id="micBtn"
+  onclick="startVoice()"
+  aria-label="Voice input"
+  style="background:#29213f;color:#b6a0ff;border:none;border-radius:14px;width:48px;height:48px;font-size:22px;cursor:pointer;flex-shrink:0;">
+  🎙️
+</button>
+     
       <button class="send" onclick="sendMessage()"
         aria-label="Send message">↑</button>
     </div>
@@ -321,6 +328,46 @@ textarea {
 </div>
 
 <script>
+ function startVoice() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Voice input is not supported in this browser.");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  const mic = document.getElementById("micBtn");
+  const input = document.getElementById("input");
+
+  recognition.lang = "en-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    mic.style.background = "#dc2626";
+    input.placeholder = "Listening...";
+    mic.disabled = true;
+  };
+
+  recognition.onresult = (event) => {
+    input.value = event.results[0][0].transcript;
+  };
+
+  recognition.onerror = (event) => {
+    alert("Voice error: " + event.error);
+  };
+
+  recognition.onend = () => {
+    mic.style.background = "#29213f";
+    input.placeholder = "Ask me anything...";
+    mic.disabled = false;
+  };
+
+  recognition.start();
+}
 let chats = [];
 try {
   chats = JSON.parse(
