@@ -416,6 +416,41 @@ function renderMessages() {
     const div = document.createElement("div");
     div.className = "message " + message.role;
     div.textContent = message.text;
+   if (message.role === "assistant") {
+  const speaker = document.createElement("button");
+  speaker.textContent = "🔊 Read Aloud";
+  speaker.style.cssText = `
+    display: block;
+    margin-top: 12px;
+    background: transparent;
+    color: #b6a0ff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px;
+  `;
+
+  speaker.onclick = () => {
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+
+      const voice = new SpeechSynthesisUtterance(message.text);
+
+      voice.lang = /[\u0900-\u097F]/.test(message.text)
+        ? "hi-IN" : "en-IN";
+
+      voice.rate = 1;
+      voice.pitch = 1;
+
+      window.speechSynthesis.speak(voice);
+    } else {
+      alert("Voice is not supported.");
+    }
+  };
+
+  div.appendChild(speaker);
+}
+   
     area.appendChild(div);
   });
 
