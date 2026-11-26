@@ -422,11 +422,16 @@ function renderMessages() {
   area.scrollTop = area.scrollHeight;
 }
 
-function sendMessage() {
+ let aiEngine = null;
+let aiBusy = false;
+
+async function sendMessage() {
   const input = document.getElementById("input");
   const text = input.value.trim();
 
-  if (!text) return;
+  if (!text || aiBusy) return;
+
+  aiBusy = true;
 
   if (activeChat === null) {
     chats.unshift({
@@ -436,21 +441,71 @@ function sendMessage() {
     activeChat = 0;
   }
 
-  chats[activeChat].messages.push({
+  const chat = chats[activeChat];
+
+  chat.messages.push({
     role: "user",
     text: text
   });
 
-  chats[activeChat].messages.push({
-    role: "assistant",
-    text: "Interface is working! The AI brain will be connected in the next development phase."
-  });
-
   input.value = "";
-  saveChats();
+
+  const reply = {
+    role: "assistant",
+    text: "Loading GULVIONEX AI..."
+  };
+
+  chat.messages.push(reply);
   renderMessages();
   renderHistory();
-}
+
+  try {
+    if (!aiEngine) {
+      const webllm = await import(
+        "https://esm.run/@mlc-ai/web-llm"
+      );
+
+      aiEngine = await webllm.CreateMLCEngine(
+        "Qwen2.5-0.5B-Instruct-q4f16_1-MLC",
+        {
+          initProgressCallback: (report) => {
+            reply.text = report.text;
+            renderMessages();
+          }
+        }
+      );
+    }
+
+    reply.text = "Thinking...";
+    renderMessages();
+
+    const result = await aiEngine.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are GULVIONEX AI, a helpful personal AI assistant."
+        },
+        ...chat.messages
+          .slice(0, -1)
+          .map(m => ({
+            role: m.role,
+            content: m.text
+          }))
+      ],
+      max_tokens: 512
+    });
+
+    reply.text = result.choices[0].message.content;
+
+  } catch (error) {
+    reply.text = "AI Error: " + error.message;
+  } finally {
+    aiBusy = false;
+    saveChats();
+    renderMessages();
+    renderHistory();
+  }
+} 
 
 document.getElementById("input")
   .addEventListener("keydown", event => {
