@@ -522,7 +522,11 @@ async function sendMessage() {
   const text = input.value.trim();
 
   if (!text || aiBusy) return;
-
+if ("speechSynthesis" in window) {
+  const unlock = new SpeechSynthesisUtterance(" ");
+  unlock.volume = 0;
+  window.speechSynthesis.speak(unlock);
+}
   aiBusy = true;
 
   if (activeChat === null) {
@@ -589,16 +593,19 @@ async function sendMessage() {
 
     reply.text = result.choices[0].message.content;
 if ("speechSynthesis" in window) {
-  const voice = new SpeechSynthesisUtterance(
-  reply.text
-.replace(/GULVIONEX/gi, "Gulvionex")
-.replace(/Gulfam Tasneem/gi, "गुलफ़ाम तस्नीम")
-);
-voice.lang = /[\u0900-\u097F]/.test(voice.text)
-  ? "hi-IN" : "en-IN";  
-  voice.rate = 1;
+  const speechText = reply.text
+    .replace(/GULVIONEX/gi, "Gulvionex")
+    .replace(/Gulfam Tasneem/gi, "Gulfaam Tasneem");
+
+  const voice = new SpeechSynthesisUtterance(speechText);
+  voice.lang = /[\u0900-\u097F]/.test(speechText)
+    ? "hi-IN" : "en-IN";
+  voice.rate = 0.9;
   voice.pitch = 1;
+  voice.volume = 1;
+
   window.speechSynthesis.cancel();
+  window.speechSynthesis.resume();
   window.speechSynthesis.speak(voice);
 }
   } catch (error) {
